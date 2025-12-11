@@ -1,0 +1,9 @@
+using System.Drawing;
+using TagsCloudContainer.Core.Domains;
+
+namespace TagsCloudContainer.Core.Interfaces;
+
+public interface ITagSizeCalculator
+{
+    Size GetSize(Tag tag, float fontSize);
+}

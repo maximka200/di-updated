@@ -1,21 +1,36 @@
 using System.Drawing;
+using TagCloud;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public class CloudLayouterWrapper : ICloudLayouterWrapper 
+public class CloudLayouterWrapper(CircularCloudLayouter cloudLayouter, ITagSizeCalculator tagSizeCalculator,
+    float minFontSize = 10, float maxFontSize = 60)
+    : ICloudLayouterWrapper
 {
-
-    private ICircularCloudLayouter cloudLayouter;
-    
-    private readonly Func<Tag, Size> getTagSize = tag => new Size(tag.Frequency, 10);
-
     public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags)
     {
-        return from tag
-            in tags let
-            rectangle = cloudLayouter.PutNextRectangle(getTagSize(tag))
-            select new PositionedTag(tag, rectangle);
+        var tagList = tags.ToList();
+        if (tagList.Count == 0)
+            yield break;
+
+        var minFreq = tagList.Min(t => t.Frequency);
+        var maxFreq = tagList.Max(t => t.Frequency);
+        
+        foreach (var tag in tagList.OrderByDescending(t => t.Frequency))
+        {
+            var fontSize = GetFontSize(tag.Frequency, minFontSize, maxFontSize, minFreq, maxFreq);
+            var size = tagSizeCalculator.GetSize(tag, fontSize);
+            var rect = cloudLayouter.PutNextRectangle(size);
+            yield return new PositionedTag(tag, rect, fontSize);
+        }
+    }
+
+    private static int GetFontSize(int frequency, float minFontSize, float maxFontSize, int minFreq, int maxFreq)
+    {
+        var range = maxFreq - minFreq + 1;
+        var normalized = (frequency - minFreq + 0.5f) / range;
+        return (int)(minFontSize + normalized * (maxFontSize - minFontSize));
     }
 }
