@@ -6,11 +6,13 @@ public class FileStopWordsProvider : IStopWordsProvider
 {
     private readonly string? stopWordsPath;
     private readonly Lazy<ISet<string>> lazyStopWords;
+    private readonly IWordNormalizer wordNormalizer;
 
-    public FileStopWordsProvider(string? stopWordsPath = null)
+    public FileStopWordsProvider(IWordNormalizer normalizer, string? stopWordsPath = null)
     {
         this.stopWordsPath = stopWordsPath;
         lazyStopWords = new Lazy<ISet<string>>(LoadStopWords);
+        wordNormalizer = normalizer;
     }
 
     private ISet<string> LoadStopWords()
@@ -20,7 +22,7 @@ public class FileStopWordsProvider : IStopWordsProvider
 
         return File
             .ReadAllLines(stopWordsPath)
-            .Select(x => x.ToLowerInvariant())
+            .Select(x => wordNormalizer.Normalize(x))
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToHashSet();
     }

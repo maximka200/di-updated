@@ -54,7 +54,7 @@ public class TagCloudGenerator : ITagCloudGenerator
         RenderImage(request, positioned);
     }
 
-    private void CreateEmptyImage(TagCloudGenerationRequest request, System.Drawing.Size size)
+    private static void CreateEmptyImage(TagCloudGenerationRequest request, System.Drawing.Size size)
     {
         using Image<Rgba32> image = new(size.Width, size.Height);
         image.Mutate(ctx => ctx.Fill(ToColor(request.BackgroundColor)));
@@ -74,11 +74,8 @@ public class TagCloudGenerator : ITagCloudGenerator
         var minFreq = positionedTags.Min(p => p.Tag.Frequency);
         var maxFreq = positionedTags.Max(p => p.Tag.Frequency);
 
-        foreach (var positioned in positionedTags)
+        foreach (var (tag, rect, _) in positionedTags)
         {
-            var tag = positioned.Tag;
-            var rect = positioned.Rectangle;
-
             var fontSize = ScaleFont(
                 tag.Frequency,
                 settings.MinFontSize,
