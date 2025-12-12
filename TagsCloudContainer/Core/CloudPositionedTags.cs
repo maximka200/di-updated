@@ -5,9 +5,9 @@ using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public class CloudLayouterWrapper(CircularCloudLayouter cloudLayouter, ITagSizeCalculator tagSizeCalculator,
+public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, ITagSizeCalculator tagSizeCalculator,
     float minFontSize = 10, float maxFontSize = 60)
-    : ICloudLayouterWrapper
+    : ICloudPositionedTags
 {
     public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags)
     {

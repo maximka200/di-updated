@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using Autofac;
 using TagCloud;
 using TagsCloudContainer.Core;
@@ -95,16 +94,17 @@ namespace TagsCloudContainer
                 .As<IWordFrequencyAnalyzer>()
                 .SingleInstance();
 
-            builder.Register(_ =>
-                    new CircularCloudLayouter(new System.Drawing.Point(600, 400)))
-                .SingleInstance();
-
             builder.RegisterType<TagSizeCalculator>()
                 .As<ITagSizeCalculator>()
                 .SingleInstance();
+                
+            builder.Register(_ =>
+                    new CircularCloudLayouterWrapper(new Point(500, 500))) 
+                .As<ICircularCloudLayouterWrapper>()
+                .SingleInstance();
 
-            builder.RegisterType<CloudLayouterWrapper>()
-                .As<ICloudLayouterWrapper>()
+            builder.RegisterType<CloudPositionedTags>()
+                .As<ICloudPositionedTags>()
                 .WithParameter("minFontSize", 12f)
                 .WithParameter("maxFontSize", 64f)
                 .SingleInstance();

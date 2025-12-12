@@ -14,12 +14,12 @@ public class TagCloudGenerator : ITagCloudGenerator
     private readonly IWordsSourceFactory wordsSourceFactory;
     private readonly IWordsPreprocessor wordsPreprocessor;
     private readonly IWordFrequencyAnalyzer frequencyAnalyzer;
-    private readonly ICloudLayouterWrapper cloudLayouter;
+    private readonly ICloudPositionedTags cloudLayouter;
 
     private FontFamily fontFamily;
 
     public TagCloudGenerator(IWordsSourceFactory wordsSourceFactory, IWordsPreprocessor wordsPreprocessor,
-        IWordFrequencyAnalyzer frequencyAnalyzer, ICloudLayouterWrapper cloudLayouter)
+        IWordFrequencyAnalyzer frequencyAnalyzer, ICloudPositionedTags cloudLayouter)
     {
         this.wordsSourceFactory = wordsSourceFactory;
         this.wordsPreprocessor = wordsPreprocessor;

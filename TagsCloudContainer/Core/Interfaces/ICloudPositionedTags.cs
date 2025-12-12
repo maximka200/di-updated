@@ -2,7 +2,7 @@ using TagsCloudContainer.Core.Domains;
 
 namespace TagsCloudContainer.Core.Interfaces;
 
-public interface ICloudLayouterWrapper 
+public interface ICloudPositionedTags 
 {
     IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags);
 }
