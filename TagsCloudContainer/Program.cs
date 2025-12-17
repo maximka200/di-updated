@@ -1,4 +1,5 @@
-﻿using TagsCloudContainer.Сlients.Console;
+﻿using TagsCloudContainer.Сlients;
+using TagsCloudContainer.Сlients.Console;
 using TagsCloudContainer.Сlients.GUI;
 
 namespace TagsCloudContainer;
@@ -11,7 +12,7 @@ internal static class Program
         [
             new ConsoleClientStrategy(),
             new GuiClientStrategy()
-        ]);
+        ], new ClientSelectionParser());
 
         return selector.Run(args);
     }

@@ -1,10 +1,13 @@
 namespace TagsCloudContainer.Сlients.Console;
 
-public record ConsoleOptions(
+public sealed record ConsoleOptions(
     string InputPath,
     string OutputPath,
     int Width,
     int Height,
+    int CenterX,
+    int CenterY,
+    string StopWordsPath,
     float MinFontSize,
     float MaxFontSize,
     string SourceType,

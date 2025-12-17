@@ -1,6 +1,7 @@
 using Autofac;
 using SixLabors.ImageSharp;
 using TagsCloudContainer.Core;
+using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients.GUI;
 

@@ -1,6 +1,7 @@
 using Autofac;
-using SixLabors.ImageSharp;
 using TagsCloudContainer.Core;
+using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients.Console;
 
@@ -30,8 +31,9 @@ public sealed class ConsoleClientStrategy : IClientStrategy
     {
         var builder = new ContainerBuilder();
 
-        var stopWordsPath = Path.Combine(AppContext.BaseDirectory, "stop-words.txt");
-        builder.RegisterModule(new TagCloudBuilder(new Point(500, 500), stopWordsPath));
+        builder.RegisterType<TagCloudGeneratorFactory>()
+            .As<ITagCloudGeneratorFactory>()
+            .SingleInstance();
 
         builder.RegisterType<ConsoleClient>()
             .AsSelf()

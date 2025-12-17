@@ -1,3 +1,5 @@
+using TagsCloudContainer.Сlients.Interfaces;
+
 namespace TagsCloudContainer.Сlients.GUI;
 
 public class GuiClient : IClient

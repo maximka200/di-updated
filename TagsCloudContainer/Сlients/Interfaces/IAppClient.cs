@@ -1,4 +1,4 @@
-namespace TagsCloudContainer;
+namespace TagsCloudContainer.Сlients.Interfaces;
 
 public interface IClientStrategy
 {
