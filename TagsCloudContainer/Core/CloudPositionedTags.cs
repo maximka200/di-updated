@@ -1,12 +1,10 @@
-using System.Drawing;
-using TagCloud;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
 public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, ITagSizeCalculator tagSizeCalculator,
-    float minFontSize = 10, float maxFontSize = 60)
+    float minFontSize, float maxFontSize)
     : ICloudPositionedTags
 {
     public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags)
@@ -29,8 +27,8 @@ public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, IT
 
     private static int GetFontSize(int frequency, float minFontSize, float maxFontSize, int minFreq, int maxFreq)
     {
-        var range = maxFreq - minFreq + 1;
-        var normalized = (frequency - minFreq + 0.5f) / range;
+        var range = maxFreq - minFreq;
+        var normalized = (frequency - minFreq) / range;
         return (int)(minFontSize + normalized * (maxFontSize - minFontSize));
     }
 }

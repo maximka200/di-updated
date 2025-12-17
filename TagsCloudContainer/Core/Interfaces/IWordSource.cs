@@ -2,5 +2,6 @@ namespace TagsCloudContainer.Core.Interfaces;
 
 public interface IWordsSource
 {
-    IEnumerable<string> GetWords();
+    bool CanHandle(SourceSettings settings);
+    IEnumerable<string> GetWords(string path);
 }

@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Сlients\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Autofac" Version="9.0.0" />
       <PackageReference Include="System.Drawing.Common" Version="10.0.1" />
     </ItemGroup>
@@ -30,6 +26,9 @@
 
     <ItemGroup>
       <None Update="example.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="stop-words.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

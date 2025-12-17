@@ -1,5 +1,5 @@
-using System.Drawing;
+using SixLabors.ImageSharp;
 
 namespace TagsCloudContainer.Core.Domains;
 
-public record PositionedTag(Tag Tag, Rectangle Rectangle, int FontSize);
+public record PositionedTag(Tag Tag, Rectangle Rectangle, float FontSize);

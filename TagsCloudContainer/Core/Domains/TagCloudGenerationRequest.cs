@@ -1,14 +1,15 @@
-using System.Drawing;
+
+
+using SixLabors.ImageSharp;
 
 namespace TagsCloudContainer.Core.Domains;
 
 public class TagCloudGenerationRequest
 {
-    public SourceSettings SourceSettings { get; init; } = null!;
-    public LayoutSettings LayoutSettings { get; init; } = null!;
-    public string OutputPath { get; init; } = "cloud.png";
-    public Color BackgroundColor { get; init; } = Color.White;
-    public Color TextColor { get; init; } = Color.Black;
-    public string? StopWordsPath { get; init; }
-    public string OutputFormat { get; init; } = "png";
+    public SourceSettings SourceSettings { get; init; }
+    public LayoutSettings LayoutSettings { get; init; }
+    public string OutputPath { get; init; }
+    public Color BackgroundColor { get; init; }
+    public Color TextColor { get; init; }
+    public string OutputFormat { get; init; }
 }

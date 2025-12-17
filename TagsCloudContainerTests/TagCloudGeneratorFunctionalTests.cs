@@ -1,6 +1,6 @@
-using System.Drawing;
 using Autofac;
 using FluentAssertions;
+using SixLabors.ImageSharp;
 using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
@@ -30,7 +30,7 @@ public class TagCloudGeneratorFunctionalTests
         const int width = 800;
         const int height = 600;
 
-        using var container = BuildTestContainer(width, height);
+        using var container = BuildTestContainer();
         var generator = container.Resolve<ITagCloudGenerator>();
 
         var request = new TagCloudGenerationRequest
@@ -60,53 +60,10 @@ public class TagCloudGeneratorFunctionalTests
         bytes.Take(8).Should().Equal(pngHeader);
     }
 
-    private static IContainer BuildTestContainer(int width, int height)
+    private static IContainer BuildTestContainer()
     {
         var builder = new ContainerBuilder();
-        
-        builder.RegisterType<WordsSourceFactory>()
-            .As<IWordsSourceFactory>()
-            .SingleInstance();
-        
-        builder.RegisterType<LowerCaseNormalizer>()
-            .As<IWordNormalizer>()
-            .SingleInstance();
-
-        builder.RegisterType<FileStopWordsProvider>()
-            .As<IStopWordsProvider>()
-            .SingleInstance();
-
-        builder.RegisterType<StopWordsFilter>()
-            .As<IWordsFilter>()
-            .SingleInstance();
-
-        builder.RegisterType<CompositeWordsPreprocessor>()
-            .As<IWordsPreprocessor>()
-            .SingleInstance();
-        
-        builder.RegisterType<WordFrequencyAnalyzer>()
-            .As<IWordFrequencyAnalyzer>()
-            .SingleInstance();
-        
-        builder.Register(_ =>
-            new CircularCloudLayouterWrapper(new Point(width / 2, height / 2)))
-            .As<ICircularCloudLayouterWrapper>()
-            .SingleInstance();
-
-        builder.RegisterType<TagSizeCalculator>()
-            .As<ITagSizeCalculator>()
-            .SingleInstance();
-
-        builder.RegisterType<CloudPositionedTags>()
-            .As<ICloudPositionedTags>()
-            .WithParameter("minFontSize", 12f)
-            .WithParameter("maxFontSize", 48f)
-            .SingleInstance();
-        
-        builder.RegisterType<TagCloudGenerator>()
-            .As<ITagCloudGenerator>()
-            .SingleInstance();
-
+        builder.RegisterModule(new TagCloudBuilder(new Point(500, 500), "stop-words.txt"));
         return builder.Build();
     }
 }

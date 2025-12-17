@@ -1,6 +1,4 @@
-
-
-using System.Drawing;
+using SixLabors.ImageSharp;
 
 namespace TagsCloudContainer.Core.Interfaces;
 
