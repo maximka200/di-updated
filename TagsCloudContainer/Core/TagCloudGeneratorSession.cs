@@ -6,12 +6,10 @@ namespace TagsCloudContainer.Core;
 public sealed class TagCloudGeneratorSession : IDisposable
 {
     private readonly ILifetimeScope scope;
-    public ITagCloudGenerator Generator { get; }
 
-    internal TagCloudGeneratorSession(ILifetimeScope scope, ITagCloudGenerator generator)
+    internal TagCloudGeneratorSession(ILifetimeScope scope)
     {
         this.scope = scope;
-        Generator = generator;
     }
 
     public void Dispose() => scope.Dispose();

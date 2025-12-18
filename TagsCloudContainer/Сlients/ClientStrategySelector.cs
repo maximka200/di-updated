@@ -16,12 +16,25 @@ public sealed class ClientStrategySelector
 
     public int Run(string[] args)
     {
-        var selection = parser.Parse(args);
+        try
+        {
+            var selection = parser.Parse(args);
 
-        if (!strategies.TryGetValue(selection.ClientKey, out var strategy))
-            throw new UnknownClientException(
+            if (strategies.TryGetValue(selection.ClientKey, out var strategy)) return strategy.Run(selection.RestArgs);
+            System.Console.Error.WriteLine(
                 $"Неизвестный клиент: {selection.ClientKey}. Доступно: {string.Join(", ", strategies.Keys)}");
+            return 1;
 
-        return strategy.Run(selection.RestArgs);
+        }
+        catch (CommandLineException e)
+        {
+            System.Console.Error.WriteLine(e.Message);
+            return 1;
+        }
+        catch (UnknownClientException e)
+        {
+            System.Console.Error.WriteLine(e.Message);
+            return 1;
+        }
     }
 }

@@ -4,12 +4,10 @@ using SixLabors.Fonts;
 
 namespace TagsCloudContainer.Core;
 
-public class TagCloudGenerator(IWordsSourceFactory wordsSourceFactory, IWordsPreprocessor wordsPreprocessor,
-    IWordFrequencyAnalyzer frequencyAnalyzer, ICloudPositionedTags cloudLayouter, FontFamily? fontFamily = null)
+public class TagCloudGenerator(WordsSourceFactory wordsSourceFactory, IWordsPreprocessor wordsPreprocessor,
+    IWordFrequencyAnalyzer frequencyAnalyzer, ICloudPositionedTags cloudLayouter)
     : ITagCloudGenerator
 {
-    private readonly FontFamily fontFamily = fontFamily ?? SystemFonts.Collection.Families.First();
-
     public void Generate(TagCloudGenerationRequest request)
     {
         GenerationContext.Start(request)
@@ -17,7 +15,7 @@ public class TagCloudGenerator(IWordsSourceFactory wordsSourceFactory, IWordsPre
             .Preprocess(wordsPreprocessor)
             .BuildTags(frequencyAnalyzer)
             .Layout(cloudLayouter)
-            .Render(fontFamily)
+            .Render()
             .Save();
     }
 }

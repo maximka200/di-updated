@@ -3,11 +3,10 @@ using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, ITagSizeCalculator tagSizeCalculator,
-    float minFontSize, float maxFontSize)
+public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, ITagSizeCalculator tagSizeCalculator)
     : ICloudPositionedTags
 {
-    public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags)
+    public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize, float maxFontSize)
     {
         var tagList = tags.ToList();
         if (tagList.Count == 0)
@@ -25,10 +24,20 @@ public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, IT
         }
     }
 
-    private static int GetFontSize(int frequency, float minFontSize, float maxFontSize, int minFreq, int maxFreq)
+    private static float GetFontSize(int frequency, float minFontSize, float maxFontSize, int minFreq, int maxFreq)
     {
-        var range = maxFreq - minFreq;
-        var normalized = (frequency - minFreq) / range;
-        return (int)(minFontSize + normalized * (maxFontSize - minFontSize));
+        if (minFontSize <= 0 || maxFontSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(minFontSize), "Font sizes must be > 0");
+
+        if (minFontSize > maxFontSize)
+            (minFontSize, maxFontSize) = (maxFontSize, minFontSize);
+
+        if (minFreq == maxFreq)
+            return (minFontSize + maxFontSize) / 2f;
+
+        var normalized = (frequency - minFreq) / (float)(maxFreq - minFreq);
+        normalized = Math.Clamp(normalized, 0f, 1f);
+
+        return minFontSize + normalized * (maxFontSize - minFontSize);
     }
 }

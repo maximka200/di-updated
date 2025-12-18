@@ -1,3 +1,5 @@
+using Color = SixLabors.ImageSharp.Color;
+
 namespace TagsCloudContainer.Сlients.Console;
 
 public sealed record ConsoleOptions(
@@ -11,5 +13,8 @@ public sealed record ConsoleOptions(
     float MinFontSize,
     float MaxFontSize,
     string SourceType,
-    string OutputFormat
+    string OutputFormat,
+    Color BackgroundColor,
+    Color TextColor,
+    string FontFamily
 );

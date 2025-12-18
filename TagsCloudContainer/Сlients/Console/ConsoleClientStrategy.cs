@@ -30,11 +30,7 @@ public sealed class ConsoleClientStrategy : IClientStrategy
     private static IContainer BuildContainer()
     {
         var builder = new ContainerBuilder();
-
-        builder.RegisterType<TagCloudGeneratorFactory>()
-            .As<ITagCloudGeneratorFactory>()
-            .SingleInstance();
-
+        
         builder.RegisterType<ConsoleClient>()
             .AsSelf()
             .SingleInstance();

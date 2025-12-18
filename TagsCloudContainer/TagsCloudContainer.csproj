@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="example.txt">
+      <None Update="input.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="stop-words.txt">

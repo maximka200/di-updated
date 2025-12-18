@@ -5,14 +5,12 @@ using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public sealed class TagCloudBuilder(Point center, string? stopWordsPath, float minFontSize = 12f,
-    float maxFontSize = 64f)
+public class TagCloudBuilder(Point center, string? stopWordsPath)
     : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterType<WordsSourceFactory>()
-            .As<IWordsSourceFactory>()
             .SingleInstance();
         
         builder.RegisterType<TagSizeCalculator>()
@@ -50,8 +48,6 @@ public sealed class TagCloudBuilder(Point center, string? stopWordsPath, float m
 
         builder.RegisterType<CloudPositionedTags>()
             .As<ICloudPositionedTags>()
-            .WithParameter("minFontSize", minFontSize)
-            .WithParameter("maxFontSize", maxFontSize)
             .SingleInstance();
 
         builder.RegisterType<TagCloudGenerator>()

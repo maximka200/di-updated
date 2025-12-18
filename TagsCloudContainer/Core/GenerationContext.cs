@@ -21,7 +21,7 @@ public sealed class GenerationContext
     public static GenerationContext Start(TagCloudGenerationRequest request) =>
         new(request ?? throw new ArgumentNullException(nameof(request)));
 
-    public GenerationContext ReadWords(IWordsSourceFactory factory)
+    public GenerationContext ReadWords(WordsSourceFactory factory)
     {
         var source = factory.Create(Request.SourceSettings);
         Words = source.GetWords(Request.SourceSettings.Path);
@@ -46,19 +46,19 @@ public sealed class GenerationContext
     {
         PositionedTags = Tags.Count == 0
             ? Array.Empty<PositionedTag>()
-            : layouter.GetPositionedTags(Tags).ToList();
+            : layouter.GetPositionedTags(Tags, Request.LayoutSettings.MinFontSize, Request.LayoutSettings.MaxFontSize).ToList();
 
         return this;
     }
 
-    public GenerationContext Render(FontFamily fontFamily)
+    public GenerationContext Render()
     {
         CreateImage();
 
         if (PositionedTags.Count == 0)
             return this;
 
-        var renderContext = BuildRenderContext(fontFamily);
+        var renderContext = BuildRenderContext();
         DrawAllTags(renderContext);
 
         return this;
@@ -67,15 +67,17 @@ public sealed class GenerationContext
     private void CreateImage()
     {
         var size = Request.LayoutSettings.ImageSize;
-        Image = new Image<Rgba32>(size.Width, size.Height);
+        Image = new Image<Rgba32>(size.Width, size.Height, Request.BackgroundColor);
     }
 
-    private RenderContext BuildRenderContext(FontFamily fontFamily)
+    private RenderContext BuildRenderContext()
     {
         var settings = Request.LayoutSettings;
 
         var minFreq = PositionedTags.Min(p => p.Tag.Frequency);
         var maxFreq = PositionedTags.Max(p => p.Tag.Frequency);
+
+        var fontFamily = FontFamilyResolver.Resolve(Request.FontFamily);
 
         return new RenderContext(
             FontFamily: fontFamily,
@@ -139,13 +141,6 @@ public sealed class GenerationContext
         {
             Image.Dispose();
         }
-    }
-        
-    private static float ScaleFont(int frequency, float minSize, float maxSize, int minFreq, int maxFreq)
-    {
-        float range = maxFreq - minFreq;
-        var norm = (frequency - minFreq) / range;
-        return minSize + norm * (maxSize - minSize);
     }
 
     private static void SaveImage(TagCloudGenerationRequest request, Image<Rgba32> image)
