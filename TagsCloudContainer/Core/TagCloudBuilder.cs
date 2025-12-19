@@ -10,9 +10,6 @@ public class TagCloudBuilder(Point center, string? stopWordsPath)
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterType<WordsSourceFactory>()
-            .SingleInstance();
-        
         builder.RegisterType<TagSizeCalculator>()
             .As<ITagSizeCalculator>()
             .SingleInstance();

@@ -1,21 +1,31 @@
 using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Core.WordSources;
 
 namespace TagsCloudContainer.Core;
 
-public sealed class WordsSourceFactory
+public static class WordsSourceFactory
 {
-    public static IReadOnlyCollection<string> SourceFormats => sourceFormats;
-    
-    private static readonly string[] sourceFormats = Sources.Select(s => s.Format).ToArray();
-    
-    private static readonly IReadOnlyCollection<IWordsSource> Sources =
+    private static readonly IWordsSource[] Sources =
     [
-        new TxtWordsSource()
+        new TxtWordsSource(),
     ];
 
-    public IWordsSource Create(SourceSettings settings)
+    private static readonly string[] sourceFormats =
+        Sources.Select(s => s.Format)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+    public static IReadOnlyCollection<string> SourceFormats => sourceFormats;
+
+    public static IWordsSource Create(SourceSettings settings)
     {
-        var source = Sources.FirstOrDefault(s => s.CanHandle(settings));
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var format = (settings.Format ?? string.Empty).Trim();
+
+        var source = Sources.FirstOrDefault(s =>
+            s.CanHandle(new SourceSettings(settings.Path, format)));
+
         if (source is null)
             throw new NotSupportedException($"Формат источника '{settings.Format}' не поддерживается");
 

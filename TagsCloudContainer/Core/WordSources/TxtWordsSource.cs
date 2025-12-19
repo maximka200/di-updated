@@ -1,6 +1,6 @@
 using TagsCloudContainer.Core.Interfaces;
 
-namespace TagsCloudContainer.Core;
+namespace TagsCloudContainer.Core.WordSources;
 
 public class TxtWordsSource : IWordsSource
 {

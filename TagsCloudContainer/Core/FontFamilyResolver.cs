@@ -1,45 +1,48 @@
 using SixLabors.Fonts;
+using TagsCloudContainer.Core.FontStrategies;
+using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
 public static class FontFamilyResolver
 {
-    private static readonly FontCollection PrivateFonts = new();
+    private static readonly IFontChoiceStrategy[] Strategies =
+    [
+        new ArialFontStrategy(),
+        new HelveticaFontStrategy(),
+        new MenloFontStrategy()
+    ];
 
-    private static FontFamily? cachedDefault;
-    private static FontFamily? cachedMono;
+    private static readonly IReadOnlyDictionary<string, IFontChoiceStrategy> Map = CreateMap(Strategies);
 
-    public static FontFamily Resolve(string? nameOrPath)
+    public static IReadOnlyCollection<string?> Choices =>
+        Strategies.Select(s => s.Key).ToArray();
+
+    public static FontFamily Resolve(string? choice)
     {
-        if (string.IsNullOrWhiteSpace(nameOrPath)) return cachedDefault ??= PickDefault();
-        var v = nameOrPath.Trim();
+        var key = Normalize(choice);
 
-        if (v.Equals("mono", StringComparison.OrdinalIgnoreCase) ||
-            v.Equals("monospace", StringComparison.OrdinalIgnoreCase))
-            return cachedMono ??= PickMonospace();
-
-        if (File.Exists(v))
-            return PrivateFonts.Add(v);
-            
-        if (SystemFonts.Collection.TryGet(v, out var sysFamily))
-            return sysFamily;
-
-        return cachedDefault ??= PickDefault();
+        try { return Map[key].Resolve(); }
+        catch (KeyNotFoundException)
+        {
+            throw new NotSupportedException(
+                $"Шрифт '{choice}' не поддерживается. Доступные варианты: {string.Join(", ", Choices)}");
+        }
     }
 
-    private static FontFamily PickMonospace()
+    private static IReadOnlyDictionary<string, IFontChoiceStrategy> CreateMap(IEnumerable<IFontChoiceStrategy> src)
     {
-        if (SystemFonts.Collection.TryGet("DejaVu Sans Mono", out var dejavu)) return dejavu;
-        if (SystemFonts.Collection.TryGet("Menlo", out var menlo)) return menlo;
+        var dict = new Dictionary<string, IFontChoiceStrategy>(StringComparer.OrdinalIgnoreCase);
+
+        var fontChoiceStrategies = src as IFontChoiceStrategy[] ?? src.ToArray();
+        foreach (var s in fontChoiceStrategies)
+            dict.Add(s.Key, s);
         
-        var anyMono = SystemFonts.Collection.Families
-            .FirstOrDefault(f => f.Name.Contains("mono", StringComparison.OrdinalIgnoreCase));
+        dict.Add("", fontChoiceStrategies.First());
 
-        return anyMono;
+        return dict;
     }
 
-    private static FontFamily PickDefault()
-    {
-        return SystemFonts.Collection.Families.FirstOrDefault();
-    }
+    private static string Normalize(string? value) =>
+        string.Concat(value).Trim().ToLowerInvariant();
 }

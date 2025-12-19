@@ -8,7 +8,7 @@ using Size = SixLabors.ImageSharp.Size;
 
 namespace TagsCloudContainer.Сlients.Console;
 
-public sealed class ConsoleClient(ILifetimeScope root) : IClient
+public class ConsoleClient(ILifetimeScope root) : IClient
 {
     public int Run(string[] args)
     {
@@ -49,7 +49,7 @@ public sealed class ConsoleClient(ILifetimeScope root) : IClient
         }
     }
 
-    private static TagCloudGenerationRequest BuildRequest(ConsoleOptions o) =>
+    private static TagCloudGenerationRequest BuildRequest(ConsoleOptions? o) =>
         new()
         {
             SourceSettings = new SourceSettings(o.InputPath, o.SourceType),

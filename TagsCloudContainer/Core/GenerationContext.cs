@@ -21,9 +21,9 @@ public sealed class GenerationContext
     public static GenerationContext Start(TagCloudGenerationRequest request) =>
         new(request ?? throw new ArgumentNullException(nameof(request)));
 
-    public GenerationContext ReadWords(WordsSourceFactory factory)
+    public GenerationContext ReadWords()
     {
-        var source = factory.Create(Request.SourceSettings);
+        var source = WordsSourceFactory.Create(Request.SourceSettings);
         Words = source.GetWords(Request.SourceSettings.Path);
         return this;
     }
@@ -147,17 +147,8 @@ public sealed class GenerationContext
     {
         var fmt = request.OutputFormat.ToLowerInvariant();
 
-        switch (fmt)
-        {
-            case "jpg" or "jpeg":
-                image.SaveAsJpeg(request.OutputPath);
-                break;
-            case "bmp":
-                image.SaveAsBmp(request.OutputPath);
-                break;
-            default:
-                image.SaveAsPng(request.OutputPath);
-                break;
-        }
+        var outputFormat = OutputFormatFactory.Create(request.OutputFormat, image);
+        
+        outputFormat.SaveImage(request.OutputPath);
     }
 }

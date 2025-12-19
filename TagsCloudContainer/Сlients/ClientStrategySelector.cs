@@ -26,12 +26,7 @@ public sealed class ClientStrategySelector
             return 1;
 
         }
-        catch (CommandLineException e)
-        {
-            System.Console.Error.WriteLine(e.Message);
-            return 1;
-        }
-        catch (UnknownClientException e)
+        catch (Exception e)
         {
             System.Console.Error.WriteLine(e.Message);
             return 1;

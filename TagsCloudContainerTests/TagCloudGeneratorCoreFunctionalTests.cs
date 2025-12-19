@@ -32,7 +32,7 @@ public class TagCloudGeneratorCoreFunctionalTests
         const int width = 800;
         const int height = 600;
 
-        using var container = BuildTestContainer();
+        using var container = BuildTestContainer("stop-words.txt", width, height);
         var generator = container.Resolve<ITagCloudGenerator>();
 
         var request = CreateRequest(
@@ -58,16 +58,6 @@ public class TagCloudGeneratorCoreFunctionalTests
         
         var pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }; // PNG signature: 89 50 4E 47 0D 0A 1A 0A
         bytes.Take(8).Should().Equal(pngHeader);
-    }
-
-    private static IContainer BuildTestContainer()
-    {
-        var builder = new ContainerBuilder();
-        builder.RegisterModule(new TagCloudBuilder(
-            new Point(500, 500), 
-            "stop-words.txt"
-            ));
-        return builder.Build();
     }
     
     [Test]
@@ -373,6 +363,99 @@ public class TagCloudGeneratorCoreFunctionalTests
             TryDeleteDirectory(tempDir.FullName);
         }
     }
+    
+        [TestCase("arial")]
+    [TestCase("helvetica")]
+    [TestCase("menlo")]
+    public void Generate_WithSupportedFontChoice_ShouldCreateNotEmptyPngFile(string fontChoice)
+    {
+        var tempDir = Directory.CreateTempSubdirectory("tags-cloud-tests-");
+        try
+        {
+            var inputPath = Path.Combine(tempDir.FullName, "words.txt");
+            var outputPath = Path.Combine(tempDir.FullName, $"cloud-{fontChoice}.png");
+            var stopWordsPath = Path.Combine(tempDir.FullName, "stop-words.txt");
+
+            File.WriteAllLines(stopWordsPath, ["the", "and"]);
+            File.WriteAllLines(inputPath, ["Hello", "world", "hello", "Cloud", "cloud"]);
+
+            const int width = 800;
+            const int height = 600;
+
+            using var container = BuildTestContainer(stopWordsPath, width, height);
+            var generator = container.Resolve<ITagCloudGenerator>();
+
+            var request = CreateRequest(
+                inputPath: inputPath,
+                outputPath: outputPath,
+                width: width,
+                height: height,
+                outputFormat: "png",
+                textColor: Color.Black,
+                backgroundColor: Color.White,
+                12f,
+                64f,
+                "txt",
+                fontChoice);
+
+            generator.Generate(request);
+
+            File.Exists(outputPath).Should().BeTrue();
+
+            var bytes = File.ReadAllBytes(outputPath);
+            bytes.Should().NotBeNull();
+            bytes.Length.Should().BeGreaterThan(100);
+
+            var pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+            bytes.Take(8).Should().Equal(pngHeader);
+        }
+        finally
+        {
+            TryDeleteDirectory(tempDir.FullName);
+        }
+    }
+
+    [Test]
+    public void Generate_WhenFontChoiceIsUnsupported_ShouldThrow()
+    {
+        var tempDir = Directory.CreateTempSubdirectory("tags-cloud-tests-");
+        try
+        {
+            var inputPath = Path.Combine(tempDir.FullName, "words.txt");
+            var outputPath = Path.Combine(tempDir.FullName, "cloud.png");
+            var stopWordsPath = Path.Combine(tempDir.FullName, "stop-words.txt");
+
+            File.WriteAllLines(stopWordsPath, ["the", "and"]);
+            File.WriteAllLines(inputPath, ["Hello", "world", "hello"]);
+
+            const int width = 800;
+            const int height = 600;
+
+            using var container = BuildTestContainer(stopWordsPath, width, height);
+            var generator = container.Resolve<ITagCloudGenerator>();
+
+            var request = CreateRequest(
+                inputPath: inputPath,
+                outputPath: outputPath,
+                width: width,
+                height: height,
+                outputFormat: "png",
+                textColor: Color.Black,
+                backgroundColor: Color.White,
+                12f,
+                64f,
+                "txt",
+                "definitely-not-a-font");
+
+            var act = () => generator.Generate(request);
+
+            act.Should().Throw<NotSupportedException>();
+        }
+        finally
+        {
+            TryDeleteDirectory(tempDir.FullName);
+        }
+    }
 
 
     private static IContainer BuildTestContainer(string stopWordsPath, int width, int height)
@@ -396,7 +479,8 @@ public class TagCloudGeneratorCoreFunctionalTests
         Color backgroundColor,
         float minFontSize,
         float maxFontSize,
-        string sourceFormat)
+        string sourceFormat,
+        string? font = null)
     {
         return new TagCloudGenerationRequest
         {
@@ -411,14 +495,13 @@ public class TagCloudGeneratorCoreFunctionalTests
             OutputFormat = outputFormat,
             TextColor = textColor,
             BackgroundColor = backgroundColor,
-            FontFamily = GetAnyFontFamilyName()
+            FontFamily = font ?? GetAnyFontName() 
         };
     }
 
-    private static string GetAnyFontFamilyName()
+    private static string? GetAnyFontName()
     {
-        var family = SystemFonts.Families.FirstOrDefault();
-        return family.Name ?? "Arial";
+        return FontFamilyResolver.Choices.FirstOrDefault();
     }
 
     private static bool HasAnyNonBackgroundPixel(Image<Rgba32> image, Rgba32 background)
@@ -437,5 +520,4 @@ public class TagCloudGeneratorCoreFunctionalTests
     {
         try { Directory.Delete(path, recursive: true); }catch { /* ignore */ }
     }
-
 }

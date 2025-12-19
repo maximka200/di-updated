@@ -1,18 +1,19 @@
 ﻿using TagsCloudContainer.Сlients;
 using TagsCloudContainer.Сlients.Console;
-using TagsCloudContainer.Сlients.GUI;
+using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer;
 
 internal static class Program
 {
+    private static readonly IClientStrategy[] Strategies = [
+        new ConsoleClientStrategy(),
+    ];
+
     private static int Main(string[] args)
     {
         var selector = new ClientStrategySelector(
-        [
-            new ConsoleClientStrategy(),
-            new GuiClientStrategy()
-        ], new ClientSelectionParser());
+            Strategies, new ClientSelectionParser());
 
         return selector.Run(args);
     }
