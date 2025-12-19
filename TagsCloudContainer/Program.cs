@@ -1,4 +1,5 @@
-﻿using TagsCloudContainer.Сlients;
+﻿using System.Text;
+using TagsCloudContainer.Сlients;
 using TagsCloudContainer.Сlients.Console;
 using TagsCloudContainer.Сlients.Interfaces;
 
@@ -12,6 +13,7 @@ internal static class Program
 
     private static int Main(string[] args)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var selector = new ClientStrategySelector(
             Strategies, new ClientSelectionParser());
 

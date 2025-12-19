@@ -11,5 +11,7 @@ public class TagCloudGenerationRequest
     public Color BackgroundColor { get; init; }
     public string OutputFormat { get; init; }
     
-    public string? FontFamily { get; init; }
+    public string? Font { get; init; }
+    
+    public bool Desc { get; init; }
 }

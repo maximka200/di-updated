@@ -4,5 +4,6 @@ namespace TagsCloudContainer.Core.Interfaces;
 
 public interface ICloudPositionedTags 
 {
-    IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize, float maxFontSize);
+    IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize, float maxFontSize,
+        bool invertSizeByFrequency);
 }

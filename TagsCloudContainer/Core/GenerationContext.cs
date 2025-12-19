@@ -46,7 +46,8 @@ public sealed class GenerationContext
     {
         PositionedTags = Tags.Count == 0
             ? Array.Empty<PositionedTag>()
-            : layouter.GetPositionedTags(Tags, Request.LayoutSettings.MinFontSize, Request.LayoutSettings.MaxFontSize).ToList();
+            : layouter.GetPositionedTags(Tags, Request.LayoutSettings.MinFontSize, Request.LayoutSettings.MaxFontSize,
+                Request.Desc).ToList();
 
         return this;
     }
@@ -77,7 +78,7 @@ public sealed class GenerationContext
         var minFreq = PositionedTags.Min(p => p.Tag.Frequency);
         var maxFreq = PositionedTags.Max(p => p.Tag.Frequency);
 
-        var fontFamily = FontFamilyResolver.Resolve(Request.FontFamily);
+        var fontFamily = FontFamilyResolver.Resolve(Request.Font);
 
         return new RenderContext(
             FontFamily: fontFamily,

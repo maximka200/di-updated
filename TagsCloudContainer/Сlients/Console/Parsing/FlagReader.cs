@@ -77,4 +77,17 @@ public class FlagReader(IReadOnlyDictionary<string, string?> flags)
             return def;
         }
     }
+    
+    public bool GetBool(string key, bool def)
+    {
+        try
+        {
+            var v = flags[key];
+            return Ensure.ParseBoolOrDefault(v, def, key);
+        }
+        catch (KeyNotFoundException)
+        {
+            return def;
+        }
+    }
 }

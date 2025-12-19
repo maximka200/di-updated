@@ -16,5 +16,6 @@ public sealed record ConsoleOptions(
     string OutputFormat,
     Color BackgroundColor,
     Color TextColor,
-    string FontFamily
+    string Font,
+    bool Desc
 );

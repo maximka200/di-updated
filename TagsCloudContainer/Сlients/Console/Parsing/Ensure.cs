@@ -117,4 +117,15 @@ internal static class Ensure
             [true] = () => ColorParser.Parse(key, s)
         }[!string.IsNullOrWhiteSpace(s)]();
     }
+    
+    public static bool ParseBoolOrDefault(string? value, bool def, string label)
+    {
+        var s = string.Concat(value).Trim();
+
+        return new Dictionary<bool, Func<bool>>
+        {
+            [false] = () => def,
+            [true] = () => BoolParser.Parse(s, label)
+        }[!string.IsNullOrWhiteSpace(s)]();
+    }
 }

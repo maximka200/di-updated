@@ -1,43 +1,50 @@
 using TagsCloudContainer.Core.Domains;
+using TagsCloudContainer.Core.FrequencySizingStrategies;
 using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public class CloudPositionedTags(ICircularCloudLayouterWrapper cloudLayouter, ITagSizeCalculator tagSizeCalculator)
+public class CloudPositionedTags(
+    ICircularCloudLayouterWrapper cloudLayouter,
+    ITagSizeCalculator tagSizeCalculator)
     : ICloudPositionedTags
 {
-    public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize, float maxFontSize)
-    {
-        var tagList = tags.ToList();
-        if (tagList.Count == 0)
-            yield break;
-
-        var minFreq = tagList.Min(t => t.Frequency);
-        var maxFreq = tagList.Max(t => t.Frequency);
-        
-        foreach (var tag in tagList.OrderByDescending(t => t.Frequency))
+    private static readonly IReadOnlyDictionary<bool, IFrequencySizingStrategy> Strategies =
+        new IFrequencySizingStrategy[]
         {
-            var fontSize = GetFontSize(tag.Frequency, minFontSize, maxFontSize, minFreq, maxFreq);
+            new DirectFrequencySizingStrategy(),
+            new InvertedFrequencySizingStrategy()
+        }.ToDictionary(s => s.Inverted);
+
+    public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize,
+        float maxFontSize, bool invertSizeByFrequency)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+
+        var tagList = tags.ToList();
+
+        var (minFreq, maxFreq) = FrequencyRange.TryGet(tagList).GetOrYieldBreak();
+
+        var (minFont, maxFont) = FontRange.Normalize(minFontSize, maxFontSize);
+
+        var strategy = Strategies[invertSizeByFrequency];
+
+        foreach (var tag in strategy.Order(tagList))
+        {
+            var fontSize = GetFontSize(tag.Frequency, minFont, maxFont, minFreq, maxFreq, strategy);
             var size = tagSizeCalculator.GetSize(tag, fontSize);
             var rect = cloudLayouter.PutNextRectangle(size);
             yield return new PositionedTag(tag, rect, fontSize);
         }
     }
 
-    private static float GetFontSize(int frequency, float minFontSize, float maxFontSize, int minFreq, int maxFreq)
+    private static float GetFontSize(int frequency, float minFontSize,
+        float maxFontSize, int minFreq, int maxFreq,
+        IFrequencySizingStrategy strategy)
     {
-        if (minFontSize <= 0 || maxFontSize <= 0)
-            throw new ArgumentOutOfRangeException(nameof(minFontSize), "Font sizes must be > 0");
+        var avg = (minFontSize + maxFontSize) / 2f;
 
-        if (minFontSize > maxFontSize)
-            (minFontSize, maxFontSize) = (maxFontSize, minFontSize);
-
-        if (minFreq == maxFreq)
-            return (minFontSize + maxFontSize) / 2f;
-
-        var normalized = (frequency - minFreq) / (float)(maxFreq - minFreq);
-        normalized = Math.Clamp(normalized, 0f, 1f);
-
-        return minFontSize + normalized * (maxFontSize - minFontSize);
+        var normalized = Normalizer.Normalize(frequency, minFreq, maxFreq).OrElse(avg);
+        return strategy.Scale(minFontSize, maxFontSize, normalized);
     }
 }

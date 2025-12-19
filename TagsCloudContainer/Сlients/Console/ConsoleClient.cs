@@ -21,9 +21,9 @@ public class ConsoleClient(ILifetimeScope root) : IClient
             return 1;
         }
 
-        if (!File.Exists(o.StopWordsPath))
+        if (!File.Exists(o?.StopWordsPath))
         {
-            System.Console.WriteLine($"Файл стоп-слов не найден: {o.StopWordsPath}");
+            System.Console.WriteLine($"Файл стоп-слов не найден: {o?.StopWordsPath}");
             return 1;
         }
 
@@ -63,7 +63,8 @@ public class ConsoleClient(ILifetimeScope root) : IClient
             OutputFormat = o.OutputFormat,
             TextColor = o.TextColor,
             BackgroundColor = o.BackgroundColor,
-            FontFamily = o.FontFamily
+            Font = o.Font,
+            Desc = o.Desc
         };
 
     private static void PrintUsage()
@@ -75,5 +76,6 @@ public class ConsoleClient(ILifetimeScope root) : IClient
         System.Console.WriteLine("  [--min-font 10] [--max-font 60] [--source-type txt]");
         System.Console.WriteLine("  [--bg #ffffff] [--fg #000000] [--font-family monospace|\"Arial\"|./fonts/Roboto.ttf]");
         System.Console.WriteLine("  [--format png|jpg|jpeg|bmp]");
+        System.Console.WriteLine("  [--desc false|true]");
     }
 }

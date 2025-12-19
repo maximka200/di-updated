@@ -495,7 +495,7 @@ public class TagCloudGeneratorCoreFunctionalTests
             OutputFormat = outputFormat,
             TextColor = textColor,
             BackgroundColor = backgroundColor,
-            FontFamily = font ?? GetAnyFontName() 
+            Font = font ?? GetAnyFontName() 
         };
     }
 
@@ -518,6 +518,13 @@ public class TagCloudGeneratorCoreFunctionalTests
 
     private static void TryDeleteDirectory(string path)
     {
-        try { Directory.Delete(path, recursive: true); }catch { /* ignore */ }
+        try
+        {
+            Directory.Delete(path, recursive: true);
+        }
+        catch
+        {
+            // ignored
+        }
     }
 }

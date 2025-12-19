@@ -8,14 +8,16 @@ public static class WordsSourceFactory
     private static readonly IWordsSource[] Sources =
     [
         new TxtWordsSource(),
+        new DocWordsSource(),
+        new DocxWordsSource()
     ];
 
-    private static readonly string[] sourceFormats =
+    private static readonly string[] wordSourceFormats =
         Sources.Select(s => s.Format)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-    public static IReadOnlyCollection<string> SourceFormats => sourceFormats;
+    public static IReadOnlyCollection<string> WordSourceFormats => wordSourceFormats;
 
     public static IWordsSource Create(SourceSettings settings)
     {
