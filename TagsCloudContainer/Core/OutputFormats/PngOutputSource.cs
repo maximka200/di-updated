@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.Formats.Png;
 
 namespace TagsCloudContainer.Core.OutputFormats;
 
-public sealed class PngOutputSource(Image image) : OutputSourceBase(image)
+public sealed class PngOutputSource: OutputSourceBase
 {
     public override string Format => "png";
 

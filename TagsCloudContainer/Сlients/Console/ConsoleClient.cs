@@ -2,6 +2,8 @@ using Autofac;
 using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Core.OutputFormats;
+using TagsCloudContainer.Сlients.Console.Parsing;
 using TagsCloudContainer.Сlients.Interfaces;
 using Point = SixLabors.ImageSharp.Point;
 using Size = SixLabors.ImageSharp.Size;
@@ -32,7 +34,8 @@ public class ConsoleClient(ILifetimeScope root) : IClient
             using var scope = root.BeginLifetimeScope(b =>
                 b.RegisterModule(new TagCloudBuilder(
                     new Point(o.CenterX, o.CenterY),
-                    o.StopWordsPath)
+                    o.StopWordsPath, OutputFormatSupport.Sources.ToArray(),
+                    SourceFormatSupport.Sources.ToArray())
                 ));
 
             var generator = scope.Resolve<ITagCloudGenerator>();

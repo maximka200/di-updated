@@ -5,151 +5,67 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Core.OutputFormats;
 
 namespace TagsCloudContainer.Core;
 
-public sealed class GenerationContext
+public class GenerationContext
 {
-    private TagCloudGenerationRequest Request { get; }
-    private IEnumerable<string> Words { get; set; } = [];
-    private IReadOnlyCollection<Tag> Tags { get; set; } = Array.Empty<Tag>();
-    private IReadOnlyCollection<PositionedTag> PositionedTags { get; set; } = Array.Empty<PositionedTag>();
-    private Image<Rgba32>? Image { get; set; }
+    private readonly TagCloudGenerationRequest request;
 
-    private GenerationContext(TagCloudGenerationRequest request) => Request = request;
+    private IEnumerable<string> words = Array.Empty<string>();
+    private IReadOnlyCollection<Tag> tags = Array.Empty<Tag>();
+    private IReadOnlyCollection<PositionedTag> positionedTags = Array.Empty<PositionedTag>();
+    private Image<Rgba32>? image;
 
-    public static GenerationContext Start(TagCloudGenerationRequest request) =>
-        new(request ?? throw new ArgumentNullException(nameof(request)));
+    private GenerationContext(TagCloudGenerationRequest request) =>
+        this.request = request ?? throw new ArgumentNullException(nameof(request));
 
-    public GenerationContext ReadWords()
+    public static GenerationContext Start(TagCloudGenerationRequest request) => new(request);
+
+    public GenerationContext ReadWords(IWordsReader reader)
     {
-        var source = WordsSourceFactory.Create(Request.SourceSettings);
-        Words = source.GetWords(Request.SourceSettings.Path);
+        words = reader.Read(request);
         return this;
     }
 
     public GenerationContext Preprocess(IWordsPreprocessor preprocessor)
     {
-        Words = preprocessor.Process(Words);
+        words = preprocessor.Process(words);
         return this;
     }
 
-    public GenerationContext BuildTags(IWordFrequencyAnalyzer analyzer)
+    public GenerationContext BuildTags(ITagsBuilder builder)
     {
-        var freq = analyzer.GetFrequencies(Words);
-        Tags = freq.Select(x => new Tag(x.Key, x.Value)).ToList();
-        
+        tags = builder.Build(words);
         return this;
     }
 
-    public GenerationContext Layout(ICloudPositionedTags layouter)
+    public GenerationContext Layout(ILayoutService layout)
     {
-        PositionedTags = Tags.Count == 0
-            ? Array.Empty<PositionedTag>()
-            : layouter.GetPositionedTags(Tags, Request.LayoutSettings.MinFontSize, Request.LayoutSettings.MaxFontSize,
-                Request.Desc).ToList();
-
+        positionedTags = tags.Count == 0 ? Array.Empty<PositionedTag>() : layout.Layout(request, tags);
         return this;
     }
 
-    public GenerationContext Render()
+    public GenerationContext Render(ICloudRenderer renderer)
     {
-        CreateImage();
-
-        if (PositionedTags.Count == 0)
-            return this;
-
-        var renderContext = BuildRenderContext();
-        DrawAllTags(renderContext);
-
+        image = renderer.Render(request, positionedTags);
         return this;
     }
 
-    private void CreateImage()
+    public void Save(IImageSaver saver)
     {
-        var size = Request.LayoutSettings.ImageSize;
-        Image = new Image<Rgba32>(size.Width, size.Height, Request.BackgroundColor);
-    }
-
-    private RenderContext BuildRenderContext()
-    {
-        var settings = Request.LayoutSettings;
-
-        var minFreq = PositionedTags.Min(p => p.Tag.Frequency);
-        var maxFreq = PositionedTags.Max(p => p.Tag.Frequency);
-
-        var fontFamily = FontFamilyResolver.Resolve(Request.Font);
-
-        return new RenderContext(
-            FontFamily: fontFamily,
-            MinFontSize: settings.MinFontSize,
-            MaxFontSize: settings.MaxFontSize,
-            MinFreq: minFreq,
-            MaxFreq: maxFreq,
-            TextColor: Request.TextColor
-        );
-    }
-
-    private void DrawAllTags(RenderContext ctx)
-    {
-        foreach (var (tag, rect, fontSize) in PositionedTags)
-            DrawTag(ctx, tag, rect, fontSize);
-    }
-
-    private void DrawTag(RenderContext ctx, Tag tag, Rectangle rect, float fontSize)
-    {
-        var font = ctx.FontFamily.CreateFont(fontSize);
-
-        var origin = GetCenteredOrigin(tag.Word, font, rect);
-
-        var options = CreateTextOptions(font, origin);
-
-        Image?.Mutate(i => i.DrawText(options, tag.Word, ctx.TextColor));
-    }
-
-    private static PointF GetCenteredOrigin(string text, Font font, Rectangle rect)
-    {
-        var bounds = TextMeasurer.MeasureBounds(text, new TextOptions(font)
-        {
-            WrappingLength = float.PositiveInfinity
-        });
-
-        var x = rect.X + (rect.Width - bounds.Width) / 2f - bounds.X;
-        var y = rect.Y + (rect.Height - bounds.Height) / 2f - bounds.Y;
-
-        return new PointF(x, y);
-    }
-    
-    private static RichTextOptions CreateTextOptions(Font font, PointF origin)
-    {
-        return new RichTextOptions(font)
-        {
-            Origin = origin,
-            WrappingLength = float.PositiveInfinity
-        };
-    }
-
-    public void Save()
-    {
-        if (Image is null)
+        if (image is null)
             throw new InvalidOperationException("Ошибка генерации, изображение не сгенерировано");
 
         try
         {
-            SaveImage(Request, Image);
+            saver.Save(request, image);
         }
         finally
         {
-            Image.Dispose();
+            image.Dispose();
+            image = null;
         }
-    }
-
-    private static void SaveImage(TagCloudGenerationRequest request, Image<Rgba32> image)
-    {
-        var fmt = request.OutputFormat.ToLowerInvariant();
-
-        var outputFormat = OutputFormatFactory.Create(request.OutputFormat, image);
-        
-        outputFormat.SaveImage(request.OutputPath);
     }
 }

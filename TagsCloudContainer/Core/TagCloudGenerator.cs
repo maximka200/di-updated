@@ -1,21 +1,24 @@
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
-using SixLabors.Fonts;
-
 namespace TagsCloudContainer.Core;
 
-public class TagCloudGenerator(IWordsPreprocessor wordsPreprocessor,
-    IWordFrequencyAnalyzer frequencyAnalyzer, ICloudPositionedTags cloudLayouter)
+public class TagCloudGenerator(
+    IWordsReader wordsReader,
+    IWordsPreprocessor wordsPreprocessor,
+    ITagsBuilder tagsBuilder,
+    ILayoutService layoutService,
+    ICloudRenderer renderer,
+    IImageSaver saver)
     : ITagCloudGenerator
 {
     public void Generate(TagCloudGenerationRequest request)
     {
         GenerationContext.Start(request)
-            .ReadWords()
+            .ReadWords(wordsReader)
             .Preprocess(wordsPreprocessor)
-            .BuildTags(frequencyAnalyzer)
-            .Layout(cloudLayouter)
-            .Render()
-            .Save();
+            .BuildTags(tagsBuilder)
+            .Layout(layoutService)
+            .Render(renderer)
+            .Save(saver);
     }
 }

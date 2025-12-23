@@ -3,14 +3,14 @@ using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core.OutputFormats;
 
-public abstract class OutputSourceBase(Image image) : IOutputFormat
+public abstract class OutputSourceBase : IOutputFormat
 {
     public abstract string Format { get; }
 
     public bool CanHandle(string format) =>
         string.Equals(Normalize(format), Format, StringComparison.OrdinalIgnoreCase);
 
-    public void SaveImage(string path)
+    public void SaveImage(string path, Image image)
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentException("Output path is empty", nameof(path));

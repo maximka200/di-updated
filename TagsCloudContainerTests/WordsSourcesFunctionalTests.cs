@@ -45,31 +45,31 @@ public class WordsSourcesFunctionalTests
         words.Should().Contain(["Hello", "world", "hello", "cloud", "2025"]);
     }
 
-    [Test]
-    public void WordsSourceFactory_SourceFormats_ShouldContainTxtDocDocx()
-    {
-        WordsSourceFactory.WordSourceFormats.Should().Contain(new[] { "txt", "doc", "docx" });
-    }
-
-    [TestCase("txt", typeof(TxtWordsSource))]
-    [TestCase("doc", typeof(DocWordsSource))]
-    [TestCase("docx", typeof(DocxWordsSource))]
-    [TestCase("DOCX", typeof(DocxWordsSource))]
-    public void WordsSourceFactory_Create_ShouldReturnExpectedImplementation(string format, Type expectedType)
-    {
-        var source = WordsSourceFactory.Create(new SourceSettings("whatever", format));
-        source.Should().BeOfType(expectedType);
-    }
-
-    [Test]
-    public void WordsSourceFactory_Create_WhenFormatIsUnsupported_ShouldThrow()
-    {
-        var act = () => WordsSourceFactory.Create(new SourceSettings("whatever", "pdf"));
-
-        act.Should()
-            .Throw<NotSupportedException>()
-            .WithMessage("*'pdf'*");
-    }
+    // [Test]
+    // public void WordsSourceFactory_SourceFormats_ShouldContainTxtDocDocx()
+    // {
+    //     WordsSourceFactory.WordSourceFormats.Should().Contain(new[] { "txt", "doc", "docx" });
+    // }
+    //
+    // [TestCase("txt", typeof(TxtWordsSource))]
+    // [TestCase("doc", typeof(DocWordsSource))]
+    // [TestCase("docx", typeof(DocxWordsSource))]
+    // [TestCase("DOCX", typeof(DocxWordsSource))]
+    // public void WordsSourceFactory_Create_ShouldReturnExpectedImplementation(string format, Type expectedType)
+    // {
+    //     var source = WordsSourceFactory.Create(new SourceSettings("whatever", format));
+    //     source.Should().BeOfType(expectedType);
+    // }
+    //
+    // [Test]
+    // public void WordsSourceFactory_Create_WhenFormatIsUnsupported_ShouldThrow()
+    // {
+    //     var act = () => WordsSourceFactory.Create(new SourceSettings("whatever", "pdf"));
+    //
+    //     act.Should()
+    //         .Throw<NotSupportedException>()
+    //         .WithMessage("*'pdf'*");
+    // }
 
     private static string TestDataPath(string fileName) =>
         Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", fileName);

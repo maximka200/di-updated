@@ -6,6 +6,8 @@ using SixLabors.ImageSharp.PixelFormats;
 using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Core.OutputFormats;
+using TagsCloudContainer.Core.WordSources;
 
 namespace TagsCloudContainerTests;
 
@@ -158,8 +160,8 @@ public class TagCloudGeneratorCoreFunctionalTests
             var outputPath = Path.Combine(tempDir.FullName, "cloud.png");
             var stopWordsPath = Path.Combine(tempDir.FullName, "stop-words.txt");
 
-            File.WriteAllLines(stopWordsPath, new[] { "the", "and" });
-            File.WriteAllLines(inputPath, new[] { "alpha", "beta", "beta", "gamma", "gamma", "gamma" });
+            File.WriteAllLines(stopWordsPath, ["the", "and"]);
+            File.WriteAllLines(inputPath, ["alpha", "beta", "beta", "gamma", "gamma", "gamma"]);
 
             const int width = 900;
             const int height = 500;
@@ -202,11 +204,11 @@ public class TagCloudGeneratorCoreFunctionalTests
         try
         {
             var inputPath = Path.Combine(tempDir.FullName, "words.txt");
-            var outputPath = Path.Combine(tempDir.FullName, "cloud.jpg"); // намеренно "не та" маска
+            var outputPath = Path.Combine(tempDir.FullName, "cloud.jpg"); 
             var stopWordsPath = Path.Combine(tempDir.FullName, "stop-words.txt");
 
-            File.WriteAllLines(stopWordsPath, new[] { "the", "and" });
-            File.WriteAllLines(inputPath, new[] { "hello", "hello", "world" });
+            File.WriteAllLines(stopWordsPath, ["the", "and"]);
+            File.WriteAllLines(inputPath, ["hello", "hello", "world"]);
 
             const int width = 700;
             const int height = 700;
@@ -462,9 +464,22 @@ public class TagCloudGeneratorCoreFunctionalTests
     {
         var builder = new ContainerBuilder();
 
+        IOutputFormat[] outputFormats = [
+            new PngOutputSource(), 
+            new JpegOutputSource(), 
+            new JpegOutputSource()
+        ];
+        
+        IWordsSource[] inputSources =
+        [
+            new TxtWordsSource(),
+            new DocWordsSource(),
+            new DocxWordsSource()
+        ];
+    
         builder.RegisterModule(new TagCloudBuilder(
             center: new Point(width / 2, height / 2),
-            stopWordsPath: stopWordsPath));
+            stopWordsPath: stopWordsPath, outputFormats, inputSources));
 
         return builder.Build();
     }

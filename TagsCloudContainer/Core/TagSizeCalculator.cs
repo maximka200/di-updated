@@ -5,12 +5,11 @@ using TagsCloudContainer.Core.Interfaces;
 
 namespace TagsCloudContainer.Core;
 
-public sealed class TagSizeCalculator(FontFamily fontFamily) : ITagSizeCalculator
+public sealed class TagSizeCalculator : ITagSizeCalculator
 {
-    private FontFamily fontFamily = fontFamily;
     private const int Padding = 5;
 
-    public Size GetSize(Tag tag, float fontSize)
+    public Size GetSize(Tag tag, float fontSize, FontFamily fontFamily)
     {
         var font = fontFamily.CreateFont(fontSize);
         var bounds = TextMeasurer.MeasureBounds(tag.Word, new TextOptions(font)

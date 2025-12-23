@@ -1,3 +1,4 @@
+using SixLabors.Fonts;
 using TagsCloudContainer.Core.Domains;
 using TagsCloudContainer.Core.FrequencySizingStrategies;
 using TagsCloudContainer.Core.Interfaces;
@@ -17,7 +18,7 @@ public class CloudPositionedTags(
         }.ToDictionary(s => s.Inverted);
 
     public IEnumerable<PositionedTag> GetPositionedTags(IEnumerable<Tag> tags, float minFontSize,
-        float maxFontSize, bool invertSizeByFrequency)
+        float maxFontSize, bool invertSizeByFrequency, FontFamily ff)
     {
         ArgumentNullException.ThrowIfNull(tags);
 
@@ -32,7 +33,7 @@ public class CloudPositionedTags(
         foreach (var tag in strategy.Order(tagList))
         {
             var fontSize = GetFontSize(tag.Frequency, minFont, maxFont, minFreq, maxFreq, strategy);
-            var size = tagSizeCalculator.GetSize(tag, fontSize);
+            var size = tagSizeCalculator.GetSize(tag, fontSize, ff);
             var rect = cloudLayouter.PutNextRectangle(size);
             yield return new PositionedTag(tag, rect, fontSize);
         }

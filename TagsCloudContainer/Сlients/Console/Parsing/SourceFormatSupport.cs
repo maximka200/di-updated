@@ -1,13 +1,21 @@
-using TagsCloudContainer.Core;
+using TagsCloudContainer.Core.Interfaces;
+using TagsCloudContainer.Core.WordSources;
 
 namespace TagsCloudContainer.Сlients.Console.Parsing;
 
 internal static class SourceFormatSupport
 {
-    public static void EnsureFormatSupported(string fmt)
+    public static readonly List<IWordsSource> Sources =
+    [
+        new TxtWordsSource(),
+        new DocWordsSource(),
+        new DocxWordsSource()
+    ];
+    
+    public static void EnsureFormatSupported(string src)
     {
-        var f = string.Concat(fmt).Trim().ToLowerInvariant();
-        Ensure.True(WordsSourceFactory.WordSourceFormats.Contains(f), $"Неподдерживаемый формат источника: {fmt}");
+        var f = string.Concat(src).Trim().ToLowerInvariant();
+        Ensure.True(Sources.Select(s => s.Format).Contains(src), $"Неподдерживаемый формат источника: {src}");
     }
 
     public static string FormatFromPath(string inputPath)

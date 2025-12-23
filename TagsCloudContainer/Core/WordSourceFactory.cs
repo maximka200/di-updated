@@ -5,27 +5,13 @@ namespace TagsCloudContainer.Core;
 
 public static class WordsSourceFactory
 {
-    private static readonly IWordsSource[] Sources =
-    [
-        new TxtWordsSource(),
-        new DocWordsSource(),
-        new DocxWordsSource()
-    ];
-
-    private static readonly string[] wordSourceFormats =
-        Sources.Select(s => s.Format)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-    public static IReadOnlyCollection<string> WordSourceFormats => wordSourceFormats;
-
-    public static IWordsSource Create(SourceSettings settings)
+    public static IWordsSource Create(SourceSettings settings, IWordsSource[] sources)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        var format = (settings.Format ?? string.Empty).Trim();
+        var format = settings.Format.Trim();
 
-        var source = Sources.FirstOrDefault(s =>
+        var source = sources.FirstOrDefault(s =>
             s.CanHandle(new SourceSettings(settings.Path, format)));
 
         if (source is null)
