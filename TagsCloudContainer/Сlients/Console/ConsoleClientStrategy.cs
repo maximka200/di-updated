@@ -2,7 +2,7 @@ using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients.Console;
 
-public sealed class ConsoleClientStrategy(IClient client) : IClientStrategy
+public class ConsoleClientStrategy(IClient client) : IClientStrategy
 {
     public string Key => "console";
 

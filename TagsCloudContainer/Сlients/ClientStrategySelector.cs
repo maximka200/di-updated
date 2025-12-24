@@ -2,7 +2,7 @@ using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients;
 
-public sealed class ClientStrategySelector
+public class ClientStrategySelector
 {
     private readonly IReadOnlyDictionary<string, IClientStrategy> strategies;
     private readonly IClientSelectionParser parser;

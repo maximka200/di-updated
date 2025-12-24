@@ -3,7 +3,7 @@ using TagsCloudContainer.Сlients.Domains;
 
 namespace TagsCloudContainer.Сlients;
 
-public sealed class ClientEqualsStrategy : IArgStrategy
+public class ClientEqualsStrategy : IArgStrategy
 {
     private static readonly IReadOnlyDictionary<string, Action<string, ParseContext>> Map =
         new Dictionary<string, Action<string, ParseContext>>(StringComparer.OrdinalIgnoreCase)

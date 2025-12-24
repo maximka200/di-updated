@@ -2,7 +2,6 @@ using TagsCloudContainer.Сlients.Exceptions;
 
 namespace TagsCloudContainer.Сlients.Domains;
 
-
 public abstract class ClientKeyState
 {
     public static readonly ClientKeyState Unset = new UnsetState();

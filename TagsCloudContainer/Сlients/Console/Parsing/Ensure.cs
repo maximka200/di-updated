@@ -15,7 +15,6 @@ internal static class Ensure
             [false] = m => throw new ConsoleParsingException(m)
         };
 
-
     private static readonly IReadOnlyDictionary<bool, Action<string>> RequireFlagPrefix =
         new Dictionary<bool, Action<string>>
         {
@@ -65,69 +64,60 @@ internal static class Ensure
         }[!string.IsNullOrWhiteSpace(s)]();
     }
 
-    public static int ParseIntOrDefault(string? value, int def, IIntRule rule)
+    public static int ParseIntOrDefault(string? value, int def, IIntRule rule) =>
+        ParseOrDefault(
+            value, def,
+            parse: s => int.Parse(s, NumberStyles.Integer, CultureInfo.InvariantCulture),
+            validate: rule.Validate,
+            errorMessage: () => $"Некорректный {rule.Label}: {value}"
+        );
+
+    public static float ParseFloatOrDefault(string? value, float def, IFloatRule rule) =>
+        ParseOrDefault(
+            value, def,
+            parse: s => float.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture),
+            validate: rule.Validate,
+            errorMessage: () => $"Некорректный {rule.Label}: {value}"
+        );
+
+    public static Color ParseColorOrDefault(string key, string? value, Color def) =>
+        ParseOrDefault(
+            value, def,
+            parse: s => ColorParser.Parse(key, s),
+            validate: c => c, // без доп. валидации
+            errorMessage: () => $"Некорректный {key}: {value}"
+        );
+
+    public static bool ParseBoolOrDefault(string? value, bool def, string label) =>
+        ParseOrDefault(
+            value, def,
+            parse: s => BoolParser.Parse(s, label),
+            validate: b => b,
+            errorMessage: () => $"Некорректный {label}: {value}"
+        );
+
+    private static T ParseOrDefault<T>(string? value, T def,
+        Func<string, T> parse, Func<T, T> validate,
+        Func<string> errorMessage)
     {
         var s = string.Concat(value).Trim();
 
-        return new Dictionary<bool, Func<int>>
+        if (string.IsNullOrWhiteSpace(s))
+            return def;
+
+        try
         {
-            [false] = () => def,
-            [true] = () =>
-            {
-                try
-                {
-                    var n = int.Parse(s, NumberStyles.Integer, CultureInfo.InvariantCulture);
-                    return rule.Validate(n);
-                }
-                catch (Exception)
-                {
-                    throw new ConsoleParsingException($"Некорректный {rule.Label}: {value}");
-                }
-            }
-        }[!string.IsNullOrWhiteSpace(s)]();
-    }
-
-    public static float ParseFloatOrDefault(string? value, float def, IFloatRule rule)
-    {
-        var s = string.Concat(value).Trim();
-
-        return new Dictionary<bool, Func<float>>
+            var parsed = parse(s);
+            return validate(parsed);
+        }
+        catch (ConsoleParsingException)
         {
-            [false] = () => def,
-            [true] = () =>
-            {
-                try
-                {
-                    var f = float.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture);
-                    return rule.Validate(f);
-                }
-                catch (Exception)
-                {
-                    throw new ConsoleParsingException($"Некорректный {rule.Label}: {value}");
-                }
-            }
-        }[!string.IsNullOrWhiteSpace(s)]();
-    }
-
-    public static Color ParseColorOrDefault(string key, string? value, Color def)
-    {
-        var s = string.Concat(value).Trim();
-
-        return new Dictionary<bool, Func<Color>>
+            throw;
+        }
+        catch (Exception)
         {
-            [false] = () => def,
-            [true] = () => ColorParser.Parse(key, s)
-        }[!string.IsNullOrWhiteSpace(s)]();
-    }
-    
-    public static bool ParseBoolOrDefault(string? value, bool def, string label)
-    {
-        var s = string.Concat(value).Trim();
-
-        return new Dictionary<bool, Func<bool>>
-        {
-            [false] = () => def,
-            [true] = () => BoolParser.Parse(s, label)
-        }[!string.IsNullOrWhiteSpace(s)]();
+            throw new ConsoleParsingException(errorMessage());
+        }
     }
 }
+

@@ -1,4 +1,3 @@
-using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Interfaces;
 using TagsCloudContainer.Core.OutputFormats;
 

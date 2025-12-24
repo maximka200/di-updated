@@ -7,7 +7,7 @@ using TagsCloudContainer.Core.WordSources;
 namespace TagsCloudContainerTests;
 
 [SetUpFixture]
-public sealed class EncodingSetup
+public class EncodingSetup
 {
     [OneTimeSetUp]
     public void RegisterEncodings()
@@ -27,7 +27,7 @@ public class WordsSourcesFunctionalTests
 
         var words = source.GetWords(path).ToArray();
 
-        words.Should().Contain(new[] { "Hello", "world", "hello", "cloud", "2025" });
+        words.Should().Contain(["Hello", "world", "hello", "cloud", "2025"]);
     }
 
     [Test]
@@ -40,7 +40,7 @@ public class WordsSourcesFunctionalTests
 
         var words = source.GetWords(path).ToArray();
 
-        words.Should().Contain(new[] { "Hello", "world", "hello", "cloud", "2025" });
+        words.Should().Contain(["Hello", "world", "hello", "cloud", "2025"]);
     }
 
     [Test]

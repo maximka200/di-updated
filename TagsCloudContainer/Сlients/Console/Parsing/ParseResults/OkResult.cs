@@ -1,6 +1,6 @@
 namespace TagsCloudContainer.Сlients.Console.Parsing.ParseResults;
 
-public sealed class OkResult(ConsoleOptions? value) : ParseResult
+public class OkResult(ConsoleOptions? value) : ParseResult
 {
     public override bool Apply(out ConsoleOptions? options, out string error)
     {

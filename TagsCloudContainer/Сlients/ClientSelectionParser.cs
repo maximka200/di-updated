@@ -5,7 +5,7 @@ using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients;
 
-public sealed class ClientSelectionParser : IClientSelectionParser
+public class ClientSelectionParser : IClientSelectionParser
 {
     public const string ClientFlag = "--client";
 

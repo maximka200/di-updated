@@ -2,7 +2,7 @@ using Color = SixLabors.ImageSharp.Color;
 
 namespace TagsCloudContainer.Сlients.Console;
 
-public sealed record ConsoleOptions(
+public record ConsoleOptions(
     string InputPath,
     string OutputPath,
     int Width,
