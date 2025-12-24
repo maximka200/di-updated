@@ -8,6 +8,8 @@ namespace TagsCloudContainer.Сlients.Console;
 
 public static class ConsoleOptionsParser
 {
+    public const string HelpErrorCode = "help";
+    
     private const int BaseWidth = 800;
     private const int BaseHeight = 800;
     private const string BaseOutput = "cloud.png";

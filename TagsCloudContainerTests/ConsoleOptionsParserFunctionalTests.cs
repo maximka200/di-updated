@@ -321,7 +321,7 @@ public class ConsoleOptionsParserFunctionalTests
             "--font", font
         };
         
-        if (invert) baseArgs.Add("--invert-size-by-frequency");
+        if (invert) baseArgs.Add("--desc");
 
         return baseArgs.ToArray();
     }

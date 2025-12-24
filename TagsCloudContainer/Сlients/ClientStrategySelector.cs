@@ -1,4 +1,3 @@
-using TagsCloudContainer.Сlients.Exceptions;
 using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients;

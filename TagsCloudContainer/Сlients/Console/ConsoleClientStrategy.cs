@@ -1,11 +1,8 @@
-using Autofac;
-using TagsCloudContainer.Core;
-using TagsCloudContainer.Core.Interfaces;
 using TagsCloudContainer.Сlients.Interfaces;
 
 namespace TagsCloudContainer.Сlients.Console;
 
-public sealed class ConsoleClientStrategy : IClientStrategy
+public sealed class ConsoleClientStrategy(IClient client) : IClientStrategy
 {
     public string Key => "console";
 
@@ -13,11 +10,7 @@ public sealed class ConsoleClientStrategy : IClientStrategy
     {
         try
         {
-            using var container = BuildContainer();
-            using var scope = container.BeginLifetimeScope();
-
-            var app = scope.Resolve<ConsoleClient>();
-            return app.Run(args);
+            return client.Run(args);
         }
         catch (Exception ex)
         {
@@ -25,16 +18,5 @@ public sealed class ConsoleClientStrategy : IClientStrategy
             System.Console.WriteLine(ex);
             return 1;
         }
-    }
-
-    private static IContainer BuildContainer()
-    {
-        var builder = new ContainerBuilder();
-        
-        builder.RegisterType<ConsoleClient>()
-            .AsSelf()
-            .SingleInstance();
-
-        return builder.Build();
     }
 }

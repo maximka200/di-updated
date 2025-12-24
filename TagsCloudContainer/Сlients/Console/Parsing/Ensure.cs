@@ -1,6 +1,7 @@
 using System.Globalization;
 using TagsCloudContainer.Сlients.Console.Parsing.ColorParsing;
 using TagsCloudContainer.Сlients.Console.Parsing.Interfaces;
+using TagsCloudContainer.Сlients.Exceptions;
 using Color = SixLabors.ImageSharp.Color;
 
 namespace TagsCloudContainer.Сlients.Console.Parsing;
@@ -11,21 +12,22 @@ internal static class Ensure
         new Dictionary<bool, Action<string>>
         {
             [true] = _ => { },
-            [false] = m => throw new Exception(m)
+            [false] = m => throw new ConsoleParsingException(m)
         };
+
 
     private static readonly IReadOnlyDictionary<bool, Action<string>> RequireFlagPrefix =
         new Dictionary<bool, Action<string>>
         {
             [true] = _ => { },
-            [false] = a => throw new Exception($"Ожидался флаг, но получено: '{a}'")
+            [false] = a => throw new ConsoleParsingException($"Ожидался флаг, но получено: '{a}'")
         };
 
     private static readonly IReadOnlyDictionary<bool, Action<(string Next, string Key)>> nextTokenIsValue =
         new Dictionary<bool, Action<(string Next, string Key)>>
         {
             [false] = _ => { },
-            [true] = p => throw new Exception($"Ожидалось значение после {p.Key}")
+            [true] = p => throw new ConsoleParsingException($"Ожидалось значение после {p.Key}")
         };
 
     public static void True(bool condition, string message) => RequireTrue[condition](message);
@@ -79,7 +81,7 @@ internal static class Ensure
                 }
                 catch (Exception)
                 {
-                    throw new Exception($"Некорректный {rule.Label}: {value}");
+                    throw new ConsoleParsingException($"Некорректный {rule.Label}: {value}");
                 }
             }
         }[!string.IsNullOrWhiteSpace(s)]();
@@ -101,7 +103,7 @@ internal static class Ensure
                 }
                 catch (Exception)
                 {
-                    throw new Exception($"Некорректный {rule.Label}: {value}");
+                    throw new ConsoleParsingException($"Некорректный {rule.Label}: {value}");
                 }
             }
         }[!string.IsNullOrWhiteSpace(s)]();

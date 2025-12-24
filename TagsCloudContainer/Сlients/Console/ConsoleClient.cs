@@ -1,22 +1,18 @@
-using Autofac;
 using TagsCloudContainer.Core;
 using TagsCloudContainer.Core.Domains;
-using TagsCloudContainer.Core.Interfaces;
-using TagsCloudContainer.Core.OutputFormats;
-using TagsCloudContainer.Сlients.Console.Parsing;
+using TagsCloudContainer.Сlients.Domains;
 using TagsCloudContainer.Сlients.Interfaces;
-using Point = SixLabors.ImageSharp.Point;
 using Size = SixLabors.ImageSharp.Size;
 
 namespace TagsCloudContainer.Сlients.Console;
 
-public class ConsoleClient(ILifetimeScope root) : IClient
+public class ConsoleClient(ITagCloudGeneratorFactory generatorFactory) : IClient
 {
     public int Run(string[] args)
     {
         if (!ConsoleOptionsParser.TryParse(args, out var o, out var error))
         {
-            if (error != "help")
+            if (error != ConsoleOptionsParser.HelpErrorCode)
                 System.Console.WriteLine(error);
 
             PrintUsage();
@@ -31,14 +27,13 @@ public class ConsoleClient(ILifetimeScope root) : IClient
 
         try
         {
-            using var scope = root.BeginLifetimeScope(b =>
-                b.RegisterModule(new TagCloudBuilder(
-                    new Point(o.CenterX, o.CenterY),
-                    o.StopWordsPath, OutputFormatSupport.Sources.ToArray(),
-                    SourceFormatSupport.Sources.ToArray())
-                ));
+            var settings = new TagCloudRuntimeSettings(
+                CenterX: o.CenterX,
+                CenterY: o.CenterY,
+                StopWordsPath: o.StopWordsPath
+            );
 
-            var generator = scope.Resolve<ITagCloudGenerator>();
+            var generator = generatorFactory.Create(settings);
             generator.Generate(BuildRequest(o));
 
             System.Console.WriteLine($"Облако тегов успешно сохранено в файл: {o.OutputPath}");
